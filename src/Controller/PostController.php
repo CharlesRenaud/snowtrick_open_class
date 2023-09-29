@@ -18,6 +18,7 @@ class PostController extends AbstractController
     }
 
     /*
+
     #[Route("/post/{id}", name: "post_detail")]
     public function detail($id): Response
     {
@@ -26,7 +27,9 @@ class PostController extends AbstractController
         return $this->render('post/detail.html.twig', [
             'postId' => $id,
         ]);
-    }*/
+    }
+    
+    */
 
     #[Route("/post/create", name: "post_create")]
     public function create(): Response

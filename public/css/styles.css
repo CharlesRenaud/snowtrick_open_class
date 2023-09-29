@@ -1,0 +1,37 @@
+.alert {
+    display: flex;
+    flex-direction: column-reverse;
+    width: 50%;
+    max-width: 500px;
+    justify-content: center;
+    align-items: center;
+    margin: auto;
+    height: 100vh;
+}
+
+.alert img {
+    opacity: 0.8
+}
+
+.success-box {
+    position: absolute;
+    z-index: 1;
+    background-color: #00000061;
+    padding: 40px;
+    box-shadow: rgba(0, 0, 0, 0.1) 0px 10px 15px -3px, rgba(0, 0, 0, 0.05) 0px 4px 6px -2px;
+}
+
+.alert p {
+    font-size: 1.2rem;
+    font-weight: bold;
+    font-family: sans-serif;
+    text-align: center;
+}
+
+.alert .redirect-name {
+    color: white;
+}
+
+.alert .green {
+    color: #4afb4a;
+}
