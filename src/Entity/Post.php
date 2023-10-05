@@ -7,8 +7,12 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use App\Entity\Video;
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 
 #[ORM\Entity(repositoryClass: PostRepository::class)]
+#[UniqueEntity(fields: ["title"], message: "Ce titre existe déjà.")]
+
 class Post
 {
     #[ORM\Id]
@@ -22,10 +26,10 @@ class Post
     #[ORM\Column(type: Types::TEXT)]
     private ?string $content = null;
 
-    #[ORM\Column]
+    #[ORM\Column(type: 'datetime')]
     private ?\DateTimeInterface $createdAt = null;
 
-    #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
+    #[ORM\Column(type: 'datetime', nullable: true)]
     private ?\DateTimeInterface $updatedAt = null;
 
     #[ORM\ManyToOne(inversedBy: 'posts')]
@@ -35,12 +39,20 @@ class Post
     #[ORM\OneToMany(mappedBy: 'post', targetEntity: Comment::class)]
     private Collection $comments;
 
+    #[ORM\Column]
+    private array $coverImgs = [];
+
+    #[ORM\OneToMany(mappedBy: 'post', targetEntity: Video::class, cascade: ["persist"])]
+    private Collection $videos;
+
+
     #[ORM\Column(length: 255)]
-    private ?string $coverImg = null;
+    private ?string $groupe = null;
 
     public function __construct()
     {
         $this->comments = new ArrayCollection();
+        $this->videos = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -72,12 +84,12 @@ class Post
         return $this;
     }
 
-    public function getCreatedAt(): ?\DateTimeImmutable
+    public function getCreatedAt(): ?\DateTime
     {
         return $this->createdAt;
     }
 
-    public function setCreatedAt(\DateTimeImmutable $createdAt): static
+    public function setCreatedAt(\DateTime $createdAt): static
     {
         $this->createdAt = $createdAt;
 
@@ -107,6 +119,7 @@ class Post
 
         return $this;
     }
+
 
     /**
      * @return Collection<int, Comment>
@@ -138,14 +151,65 @@ class Post
         return $this;
     }
 
-    public function getCoverImg(): ?string
+    public function getCoverImgs(): array
     {
-        return $this->coverImg;
+        return $this->coverImgs;
     }
 
-    public function setCoverImg(string $coverImg): static
+    public function setCoverImgs(array $coverImgs): static
     {
-        $this->coverImg = $coverImg;
+        $this->coverImgs = $coverImgs;
+
+        return $this;
+    }
+
+
+
+    /**
+     * @return Collection<int, Video>
+     */
+    public function getVideos(): Collection
+    {
+        return $this->videos;
+    }
+
+    public function setVideos(Collection $videos): static
+    {
+        $this->videos = $videos;
+
+        return $this;
+    }
+
+    public function addVideos(Video $video): static
+    {
+        if (!$this->videos->contains($video)) {
+            $this->videos->add($video);
+            $video->setPost($this);
+        }
+
+        return $this;
+    }
+
+    public function removeVideos(Video $video): static
+    {
+        if ($this->videos->removeElement($video)) {
+            // set the owning side to null (unless already changed)
+            if ($video->getPost() === $this) {
+                $video->setPost(null);
+            }
+        }
+
+        return $this;
+    }
+
+    public function getGroupe(): ?string
+    {
+        return $this->groupe;
+    }
+
+    public function setGroupe(string $groupe): static
+    {
+        $this->groupe = $groupe;
 
         return $this;
     }

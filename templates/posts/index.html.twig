@@ -1,0 +1,89 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Post index
+{% endblock %}
+
+{% block body %}
+	<h1>Post index</h1>
+
+	{% for message in app.flashes('success') %}
+		<div id="modal-container" class="black-bg-opacity">
+			<div id="modal-box" class="modal-success">
+				<p>{{ message }}</p>
+				<button id="modal-btn" class="hide-modal-btn">Super !</button>
+			</div>
+		</div>
+	{% endfor %}
+
+
+	<table class="table">
+		<thead>
+			<tr>
+				<th>Id</th>
+				<th>Title</th>
+				<th>Groupe</th>
+				<th>Content</th>
+				<th>CreatedAt</th>
+				<th>UpdatedAt</th>
+				<th>CoverImg</th>
+				<th>Video</th>
+				<th>actions</th>
+			</tr>
+		</thead>
+		<tbody>
+			{% for post in posts %}
+				<tr>
+					<td>{{ post.id }}</td>
+					<td>{{ post.title }}</td>
+					<td>{{ post.groupe }}</td>
+					<td>{{ post.content }}</td>
+					<td>{{ post.createdAt ? post.createdAt|date('Y-m-d H:i:s') : '' }}</td>
+					<td>{{ post.updatedAt ? post.updatedAt|date('Y-m-d H:i:s') : '' }}</td>
+					<td class="column-vertical">
+						{% if post.coverImgs is not empty %}
+							{% for image in post.coverImgs %}
+								<img class="img" src="/uploads/images/{{ image }}">
+							{% endfor %}
+						{% endif %}
+					</td>
+					<td class="column-vertical">
+						{% if post.videos is not empty %}
+							{% for video in post.videos %}
+								{% set videoId = video.title|split('/')|last %}
+								<iframe width="500" height="320" src="https://www.youtube.com/embed/{{ videoId }}"></iframe>
+							{% endfor %}
+						{% endif %}
+
+					</td>
+
+
+					<td>
+						<a href="{{ path('app_posts_show', {'id': post.id}) }}">show</a>
+						<a href="{{ path('app_posts_edit', {'id': post.id}) }}">edit</a>
+					</td>
+				</tr>
+			{% else %}
+				<tr>
+					<td colspan="7">no records found</td>
+				</tr>
+			{% endfor %}
+		</tbody>
+	</table>
+
+	<a href="{{ path('app_posts_new') }}">Create new</a>
+
+	<script>
+        document.addEventListener("DOMContentLoaded", function () {
+        var modalContainer = document.getElementById("modal-container");
+        var modalBox = document.getElementById("modal-box");
+        var confirmModal = document.getElementById("modal-btn");
+
+        function hideModal() {
+        modalContainer.classList.add("hidden");
+        modalBox.classList.add("hidden");
+        }
+
+        confirmModal.addEventListener("click", hideModal);
+        });
+	</script>
+{% endblock %}
