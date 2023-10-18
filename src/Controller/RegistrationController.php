@@ -82,11 +82,13 @@ class RegistrationController extends AbstractController
         if (!$user) {
             throw $this->createNotFoundException('Utilisateur non trouvé');
         }
+        $token = bin2hex(random_bytes(16));
 
         // Si l'utilisateur n'est pas déjà vérifié, marquez-le comme vérifié
         if (!$user->isVerified()) {
             $user->setIsVerified(true);
             $user->setRoles(["ROLE_USER"]);
+            $user->setVerificationToken($token);
             $entityManager->persist($user);
             $entityManager->flush();
 
