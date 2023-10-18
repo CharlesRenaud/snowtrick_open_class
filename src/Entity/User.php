@@ -27,7 +27,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column]
     private ?string $password = null;
 
-    #[ORM\Column]
+    #[ORM\Column(type: 'string', nullable: true)]
     private ?string $plainPassword = null;
 
     #[ORM\Column(type: 'boolean')]
@@ -88,7 +88,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
-    public function getPlainPassword(): ?string
+        public function getPlainPassword(): ?string
     {
         return $this->plainPassword;
     }
