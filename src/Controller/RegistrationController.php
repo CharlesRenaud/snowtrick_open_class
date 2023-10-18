@@ -144,13 +144,13 @@ class RegistrationController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             $token = bin2hex(random_bytes(16));
 
-            $user->setPassword(
-                $userPasswordHasher->hashPassword(
-                    $user,
-                    $form->get('plainPassword')->getData()
-                )
+            $hashedPass = $userPasswordHasher->hashPassword(
+                $user,
+                $form->get('plainPassword')->getData()
             );
 
+            $user->setPassword($hashedPass);
+            $user->setPlainPassword(null);
             $user->setVerificationToken($token);
 
             $entityManager->persist($user);
