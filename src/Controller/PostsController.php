@@ -12,6 +12,7 @@ use Symfony\Component\Routing\Annotation\Route;
 use DateTime;
 use App\Service\FileUploader;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
+use Symfony\Component\Filesystem\Filesystem;
 
 #[Route('/posts')]
 class PostsController extends AbstractController
@@ -146,14 +147,24 @@ class PostsController extends AbstractController
 
 
 
+    
     #[Route('/{id}', name: 'app_posts_delete', methods: ['POST'])]
-    public function delete(Request $request, Post $post, EntityManagerInterface $entityManager): Response
+    public function delete(Request $request, Post $post, EntityManagerInterface $entityManager, FileUploader $fileUploader): Response
     {
         if ($this->isCsrfTokenValid('delete' . $post->getId(), $request->request->get('_token'))) {
+            // Remove images associated with the post from the server
+            $coverImgs = $post->getCoverImgs();
+            foreach ($coverImgs as $coverImg) {
+                $fileUploader->remove($coverImg);
+            }
+    
+            // Remove the post itself
             $entityManager->remove($post);
             $entityManager->flush();
         }
-        $this->addFlash('success', 'Suppression de la figure effectué.');
+    
+        $this->addFlash('success', 'Suppression de la figure effectuée.');
         return $this->redirectToRoute('homepage', [], Response::HTTP_SEE_OTHER);
     }
+    
 }
