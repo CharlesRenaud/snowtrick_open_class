@@ -42,7 +42,7 @@ class Post
     #[ORM\Column]
     private array $coverImgs = [];
 
-    #[ORM\OneToMany(mappedBy: 'post', targetEntity: Video::class, cascade: ["persist"])]
+    #[ORM\OneToMany(mappedBy: 'post', targetEntity: Video::class, cascade: ["persist", "remove"])]
     private Collection $videos;
 
 
