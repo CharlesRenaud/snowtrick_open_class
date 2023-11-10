@@ -27,7 +27,7 @@ $ php bin/console doctrine:database:create
 Ensuite, démarrez le serveur Web Symfony :
 
 ```
-$ php bin/console server:start
+$ symfony serve
 ```
 
 ## Étape 4 : Découverte de SnowTricks !
