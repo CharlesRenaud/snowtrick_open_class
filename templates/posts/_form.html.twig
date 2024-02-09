@@ -1,61 +1,100 @@
-{{ form_start(form) }}
-{{ form_row(form.title) }}
-{{ form_row(form.content) }}
+{% block body %}
+	<div id="post_container_main" class="post-container edit" data="{{post.id}}">
+		{{ form_start(form, {'attr': {'class': 'edit-form', 'enctype': 'multipart/form-data'}}) }}
 
-{% for index, image in post.coverImgs %}
-	<div class="existing-image">
-		<input type="checkbox" name="imagesToDelete[]" value="{{ index }}">
-		<img class="img-preview" src="http://localhost:8000/uploads/images/{{ image }}">
+		<div class="header-single-post">
+			{% if post.mainImage is not empty %}
+				<img id="mainImage" class="img-banner" src="/uploads/images/{{ post.mainImage }}">
+				<a id="deleteMainImage" onclick="deleteMainImageRequest()" class="delete-image banner" href="#" data-image="{{ post.mainImage }}">
+					<img class="icon-crud" src="/images/bin-icon.png">
+				</a>
+			{% else %}
+				<img id="mainImage" class="img-banner" src="/images/empty_img.png">
+
+			{% endif %}
+
+			<a class="edit-link banner">
+				<img class="icon-crud" src="/images/edit-icon.png"/>
+				{{ form_row(form.mainImage) }}
+			</a>
+			<div class="post-title">
+				{{ form_row(form.title) }}
+			</div>
+		</div>
+
+		<div id="gallery" class="post-gallery edit">
+			{% if post.images is not empty %}
+				{% for image in post.images %}
+					<div class="image-container" id="imageContainer_{{ loop.index }}">
+						<img class="img" src="{{ asset('/uploads/images/' ~ image.getLink()) }}">
+						<div class="image-actions">
+							<a class="delete-image" href="#" data-index="{{ loop.index }}">
+								<img id="edit_image_btn_{{loop.index}}" onclick="toggleImageInput('{{ loop.index }}')" class="icon-crud" src="/images/edit-icon.png">
+								<img class="icon-crud delete_image_input" data-id="{{image.id}}" src="/images/bin-icon.png" onclick="deleteImageRequest('{{ loop.index }}')">
+								<input type="checkbox" id="{{ 'checkbox_' ~ loop.index }}" name="imagesToDelete[]" value="{{ image.id }}" style="display: none;">
+							</a>
+						</div>
+					</div>
+				{% endfor %}
+			{% endif %}
+
+
+			{% if post.videos is not empty %}
+				{% for video in post.videos %}
+					{% set videoId = video.title|split('/')|last %}
+					<div class="video-container" id="videoContainer_{{ loop.index }}">
+						<iframe width="500" height="320" src="https://www.youtube.com/embed/{{ videoId }}"></iframe>
+						<div class="video-actions">
+							<a>
+								<img id="edit_video_btn_{{loop.index}}" onclick="toggleVideoInput('{{ loop.index }}')" class="icon-crud" src="/images/edit-icon.png">
+								<img href="#" onclick="toggleVideoContainerClass('{{ loop.index }}')" class=" delete-video icon-crud bin-icon" src="/images/bin-icon.png">
+							</a>
+						</div>
+					</div>
+				{% endfor %}
+			{% endif %}
+		</div>
+
+		<div class="edit-form-container">
+			{{ form_row(form.content) }}
+			<button onclick="addImageInput('{{  form.images|length > 0 ? form.images|last.vars.name + 1 : 0  }}')" type="button" class="add_image_link" data-collection-holder-class="images">Add an image</button>
+			<ul class="images" data-index="{{ form.images|length > 0 ? form.images|last.vars.name + 1 : 0 }}" data-prototype="{{ form_widget(form.images.vars.prototype)|e('html_attr') }}"></ul>
+
+			{{ form_row(form.images) }}
+			<button onclick="addVideoInput('{{  form.videos|length > 0 ? form.videos|last.vars.name + 1 : 0  }}')" type="button" class="add_item_link" data-collection-holder-class="videos">Add a video</button>
+			<ul class="videos" data-index="{{ form.videos|length > 0 ? form.videos|last.vars.name + 1 : 0 }}" data-prototype="{{ form_widget(form.videos.vars.prototype)|e('html_attr') }}"></ul>
+			{{ form_row(form.videos) }}
+
+			<div class="form-select-box">
+				<select id="groupe-select" name="group">
+					{% for group in allGroups %}
+						<option value="{{ group }}">{{ group }}</option>
+					{% endfor %}
+				</select>
+			</div>
+			{{ form_row(form.groupe) }}
+
+
+			<div class="delete-post">
+				<button id="updateButton" class="btn">{{ button_label|default('Save') }}</button>
+			</div>
+			{{ form_errors(form) }}
+			{{ form_end(form) }}
+		</div>
 	</div>
-{% endfor %}
-
-{{ form_row(form.coverImgs) }}
-
-<button type="button" class="add_item_link" data-collection-holder-class="videos">Add a video</button>
-<ul class="videos" data-index="{{ form.videos|length > 0 ? form.videos|last.vars.name + 1 : 0 }}" data-prototype="{{ form_widget(form.videos.vars.prototype)|e('html_attr') }}"></ul>
-{{ form_row(form.videos) }}
-{{ form_row(form.groupe) }}
-
-<button class="btn">{{ button_label|default('Save') }}</button>
-{{ form_errors(form) }}
-{{ form_end(form) }}
 
 
-<script>
-	const addFormToCollection = (e) => {
-        const collectionHolder = document.querySelector('.' + e.currentTarget.dataset.collectionHolderClass);
-        const item = document.createElement('li');
-        item.innerHTML = collectionHolder.dataset.prototype.replace(/__name__/g, collectionHolder.dataset.index);
-        collectionHolder.appendChild(item);
-        collectionHolder.dataset.index ++;
-    };
+	<script src="{{asset('js/posts/delete_image.js') }}"></script>
 
-    document.querySelector('.add_item_link').addEventListener('click', addFormToCollection);
+	<script src="{{asset('js/posts/dynamic_form.js') }}"></script>
 
-    document.querySelector('form').addEventListener('submit', function (event) { // event.preventDefault()
+	<script src="{{asset('js/posts/horizontal_scroll_gallery.js') }}"></script>
 
-    const selectedImages = [];
-    const checkboxes = document.querySelectorAll('input[name="imagesToDelete[]"]');
+	<script src="{{asset('js/posts/video_func.js') }}"></script>
 
-    checkboxes.forEach(function (checkbox) {
-        if (checkbox.checked) {
-            selectedImages.push(checkbox.value);
-        }
-    });
+	<script src="{{asset('js/posts/image_func.js') }}"></script>
 
-    // Si au moins une image est sélectionnée, demandez confirmation à l'utilisateur
-    if (selectedImages.length > 0) {
-        const confirmation = window.confirm("Voulez-vous vraiment supprimer les images sélectionnées ?");
+	<script src="{{asset('js/posts/groupe_select.js') }}"></script>
 
-        if (! confirmation) { // Annuler la soumission du formulaire si l'utilisateur a cliqué sur "Annuler" dans la boîte de dialogue
-            event.preventDefault();
-        }
-    }
-    
-    const imagesToDeleteInput = document.createElement('input');
-    imagesToDeleteInput.type = 'hidden';
-    imagesToDeleteInput.name = 'imagesToDeleteIndexes';
-    imagesToDeleteInput.value = selectedImages.join(',');
-    this.appendChild(imagesToDeleteInput);
-})
-</script>
+
+{% endblock %}

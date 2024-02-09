@@ -4,58 +4,109 @@
 {% endblock %}
 
 {% block body %}
-	<h1>Post</h1>
+	<div class="post-container">
 
-	<table class="table">
-		<tbody>
-			<tr>
-				<th>Id</th>
-				<td>{{ post.id }}</td>
-			</tr>
-			<tr>
-				<th>Title</th>
-				<td>{{ post.title }}</td>
-			</tr>
-			<tr>
-				<th>Content</th>
-				<td>{{ post.content }}</td>
-			</tr>
-			<tr>
-				<th>CreatedAt</th>
-				<td>{{ post.createdAt ? post.createdAt|date('Y-m-d H:i:s') : '' }}</td>
-			</tr>
-			<tr>
-				<th>UpdatedAt</th>
-				<td>{{ post.updatedAt ? post.updatedAt|date('Y-m-d H:i:s') : '' }}</td>
-			</tr>
-			<tr>
-				<th>CoverImg</th>
-				<td class="column-vertical">
-					{% if post.coverImgs is not empty %}
-						{% for image in post.coverImgs %}
-							<img class="img" src="/uploads/images/{{ image }}">
-						{% endfor %}
+
+		<div class="header-single-post">
+			{% if post.mainImage is not empty %}
+				<img class="img-banner" src="/uploads/images/{{ post.mainImage}}">
+			{% endif %}
+			<div class="post-title">
+				<h1>{{ post.title }}</h1>
+			</div>
+		</div>
+
+		<div class="post-gallery">
+		
+			{% if post.images is not empty %}
+				{% for image in post.images %}
+					{% if loop.index > 0 %}
+						<img class="img" src="{{ asset('/uploads/images/' ~ image.getLink()) }}">
 					{% endif %}
-				</td>
-			</tr>
-			<tr>
-				<th>Videos</th>
-				<td class="column-vertical">
-					{% if post.videos is not empty %}
-						{% for video in post.videos %}
-							{% set videoId = video.title|split('/')|last %}
-							<iframe width="500" height="320" src="https://www.youtube.com/embed/{{ videoId }}"></iframe>
-						{% endfor %}
-					{% endif %}
-				</td>
-			</tr>
-		</tbody>
-	</table>
+				{% endfor %}
+			{% endif %} 
 
 
-	<a href="{{ path('homepage') }}">back to list</a>
+			{% if post.videos is not empty %}
+				{% for video in post.videos %}
+					{% set videoId = video.title|split('/')|last %}
+					<div class="iframe-box">
+						<iframe width="500" height="320" allowfullscreen src="https://www.youtube.com/embed/{{ videoId }}"></iframe>
+					</div>
+				{% endfor %}
+			{% endif %}
+		</div>
 
-	<a href="{{ path('app_posts_edit', {'id': post.id}) }}">edit</a>
+		<div class="post-content">
+			<span>{{ post.content }}</span>
+		</div>
 
-	{{ include('posts/_delete_form.html.twig') }}
-{% endblock %}
+
+		<div class="post-details">
+			<div class="detail-card">
+				<span>{{ post.groupe }}</span>
+			</div>
+			<div class="detail-card">
+				{% if post.updatedAt and post.updatedAt > post.createdAt %}
+					<span>{{ post.updatedAt|date('Y-m-d H:i:s') }}</span>
+				{% else %}
+					<span>{{ post.createdAt|date('Y-m-d H:i:s') }}</span>
+				{% endif %}
+			</div>
+			<div class="detail-card">
+				<img src="/uploads/images/{{ post.author.image }}"/>
+				<span>{{ post.author.name }}</span>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div class="post-actions">
+	{% if app.user %}
+		{% if app.user.id == post.author.id %}
+			<a class="edit-link" href="{{ path('app_posts_edit', {'id': post.id}) }}">
+				<img class="icon-crud" src="/images/edit-icon.png"/>
+			</a>
+			{{ include('posts/_delete_form.html.twig') }}
+		{% endif %}
+	{% endif %}
+</div>
+
+<script>
+	$(document).ready(function () { // Détecter le mouvement de la molette de la souris
+$('.post-gallery').on('wheel', function (e) { // Empêcher le défilement vertical par défaut
+e.preventDefault();
+
+// Faire défiler horizontalement en fonction du mouvement de la molette
+this.scrollLeft += e.originalEvent.deltaY;
+});
+
+
+$('.post-gallery').on('click', '.img, .iframe-box', function (event) {
+event.stopPropagation();
+
+if ($(this).find('iframe').length) {
+console.log("L'élément enfant est un iframe.");
+}
+
+// Vérifie si l'élément cliqué est une iframe
+if ($(this).is('iframe')) {
+var iframeSrc = $(this).attr('src');
+var content = $('<iframe>').attr('src', iframeSrc);
+} else {
+var content = $(this).clone();
+}
+
+var modal = $('<div class="modal"></div>').append(content);
+
+$('body').append(modal);
+});
+
+$('body').on('click', function () { // Sélectionne le premier élément avec la classe "modal"
+var modal = document.querySelector('.modal');
+if (modal) {
+modal.remove();
+}
+});
+});
+</script>{% endblock %}

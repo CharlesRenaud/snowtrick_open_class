@@ -1,0 +1,22 @@
+<nav>
+
+	<a href="/"><img class="logo-site" src="{{ asset('images/logo-site-2.png') }}" alt="Typographie d'un S" /></a>
+
+{% if app.user is not null and app.user.image is not null %}
+    <img title='change' id="profile-img" src="{{ asset('uploads/images/' ~ app.user.image) }}" alt="Image de l'utilisateur" />
+    <span>{{ app.user.name }}</span>
+    <input id="add_new_profile_img" type="file" accept="image/*" ></input>
+{% endif %}
+    <ul>
+        <li><a href="/">Home</a></li>
+        <li><a href="#tricks-container">Tricks</a></li>
+        {% if app.user is null %}
+            <li><a href="/login">Sign in </a></li>
+            <li><a href="/register">Sign up</a></li>
+        {% else %}
+            <li><a class="red" href="/logout">Logout</a></li>
+        {% endif %}
+    </ul>
+</nav>
+
+<script src="{{asset('js/edit-profile-img.js') }}"></script>
