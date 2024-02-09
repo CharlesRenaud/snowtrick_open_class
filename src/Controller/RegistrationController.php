@@ -4,7 +4,7 @@ namespace App\Controller;
 
 use App\Entity\User;
 use App\Form\RegistrationFormType;
-use App\Form\ResetPasswordFormType;
+use App\Form\ResetPasswordType;
 use App\Security\LoginFormAuthenticator;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -50,16 +50,21 @@ class RegistrationController extends AbstractController
                 )
             );
 
+            $user->setName($form->get('name')->getData());
+
             // Associez le token à l'utilisateur
             $user->setVerificationToken($token);
 
 
             $entityManager->persist($user);
             $entityManager->flush();
+            $email = $user->getEmail();
 
             // Utilisez le contrôleur de messagerie pour envoyer l'e-mail de confirmation
-            $mailerService->sendRegistrationConfirmationEmail($user->getEmail(), $token);
+            $mailerService->sendRegistrationConfirmationEmail($email, $token);
 
+            $this->addFlash("success", "Inscription validé, connecte toi et n'oublie pas de valider ton compte sur ton email ! ");
+            return $this->redirectToRoute('app_login', ['email' => $email], Response::HTTP_SEE_OTHER);
         }
 
         return $this->render('registration/register.html.twig', [
@@ -140,7 +145,7 @@ class RegistrationController extends AbstractController
             return $this->redirectToRoute('homepage');
         }
 
-        $form = $this->createForm(ResetPasswordFormType::class, $user);
+        $form = $this->createForm(ResetPasswordType::class, $user);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
@@ -155,7 +160,6 @@ class RegistrationController extends AbstractController
             $user->setPlainPassword(null);
             $user->setVerificationToken($token);
 
-            $entityManager->persist($user);
             $entityManager->flush();
 
             return $this->redirectToRoute('homepage');

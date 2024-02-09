@@ -8,7 +8,10 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use App\Entity\Video;
+use App\Entity\Image;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
+use DateTime;
+use Symfony\Component\Serializer\Annotation\MaxDepth;
 
 #[ORM\Entity(repositoryClass: PostRepository::class)]
 #[UniqueEntity(fields: ["title"], message: "Ce titre existe déjà.")]
@@ -18,6 +21,7 @@ class Post
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
+
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
@@ -34,15 +38,22 @@ class Post
 
     #[ORM\ManyToOne(inversedBy: 'posts')]
     #[ORM\JoinColumn(nullable: false)]
+    #[MaxDepth(2)]
     private ?User $author = null;
 
     #[ORM\OneToMany(mappedBy: 'post', targetEntity: Comment::class)]
+    #[MaxDepth(2)]
     private Collection $comments;
 
-    #[ORM\Column]
-    private array $coverImgs = [];
+    #[ORM\Column(length: 255)]
+    private ?string $mainImage = null;
+
+    #[ORM\OneToMany(mappedBy: 'post', targetEntity: Image::class, cascade: ["persist", "remove"])]
+    #[MaxDepth(2)]
+    private Collection $images;
 
     #[ORM\OneToMany(mappedBy: 'post', targetEntity: Video::class, cascade: ["persist", "remove"])]
+    #[MaxDepth(2)]
     private Collection $videos;
 
 
@@ -53,6 +64,9 @@ class Post
     {
         $this->comments = new ArrayCollection();
         $this->videos = new ArrayCollection();
+        $this->images = new ArrayCollection();
+        $this->updatedAt = new DateTime();
+        $this->createdAt = new DateTime();
     }
 
     public function getId(): ?int
@@ -71,6 +85,19 @@ class Post
 
         return $this;
     }
+
+    public function getMainImage(): ?string
+    {
+        return $this->mainImage;
+    }
+
+    public function setMainImage(string $mainImage): static
+    {
+        $this->mainImage = $mainImage;
+
+        return $this;
+    }
+
 
     public function getContent(): ?string
     {
@@ -151,19 +178,43 @@ class Post
         return $this;
     }
 
-    public function getCoverImgs(): array
+
+/**
+     * @return Collection<int, Image>
+     */
+    public function getImages(): Collection
     {
-        return $this->coverImgs;
+        return $this->images;
     }
 
-    public function setCoverImgs(array $coverImgs): static
+    public function setImages(Collection $images): static
     {
-        $this->coverImgs = $coverImgs;
+        $this->images = $images;
 
         return $this;
     }
 
+    public function addImages(Image $image): static
+    {
+        if (!$this->images->contains($image)) {
+            $this->images->add($image);
+            $image->setPost($this);
+        }
 
+        return $this;
+    }
+
+    public function removeImage(Image $image): static
+    {
+        if ($this->videos->removeElement($image)) {
+            // set the owning side to null (unless already changed)
+            if ($image->getPost() === $this) {
+                $image->setPost(null);
+            }
+        }
+
+        return $this;
+    }
 
     /**
      * @return Collection<int, Video>
@@ -202,6 +253,7 @@ class Post
         return $this;
     }
 
+
     public function getGroupe(): ?string
     {
         return $this->groupe;
@@ -214,3 +266,5 @@ class Post
         return $this;
     }
 }
+
+

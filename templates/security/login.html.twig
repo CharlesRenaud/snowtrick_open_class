@@ -4,29 +4,63 @@
 {% endblock %}
 
 {% block body %}
-	<form method="post">
-		{% if error %}
-			<div class="alert alert-danger">{{ error.messageKey|trans(error.messageData, 'security') }}</div>
-		{% endif %}
+	<div class="form-container">
+		<img class="bg-site-form" src="{{ asset('images/bg-site-snow.jpg') }}" alt="background snowboard trick"/>
 
-		{% if app.user %}
-			<div class="mb-3">
-				You are logged in as
-				{{ app.user.userIdentifier }},
-				<a href="{{ path('app_logout') }}">Logout</a>
+		{% for message in app.flashes('success') %}
+			<div id="modal-container" class="black-bg-opacity">
+				<div id="modal-box" class="modal-success">
+					<p>{{ message }}</p>
+					<button id="modal-btn" class="hide-modal-btn">Super !</button>
+				</div>
 			</div>
-		{% endif %}
+		{% endfor %}
+		<form method="post">
+			{% if error %}
+				<div class="alert alert-danger">{{ error.messageKey|trans(error.messageData, 'security') }}</div>
+			{% endif %}
 
-		<h1 class="h3 mb-3 font-weight-normal">Please sign in</h1>
-		<label for="inputEmail">Email</label>
-		<input type="email" value="{{ last_username }}" name="email" id="inputEmail" class="form-control" autocomplete="email" required autofocus>
-		<label for="inputPassword">Password</label>
-		<input type="password" name="password" id="inputPassword" class="form-control" autocomplete="current-password" required>
+			{% if app.user %}
+				<div class="mb-3">
+					You are logged in as
+					{{ app.user.userIdentifier }},
+					<a href="{{ path('app_logout') }}">Logout</a>
+				</div>
+			{% endif %}
 
-		<input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}">
+			<h1 class="h3 mb-3 font-weight-normal">Please sign in</h1>
+			<label for="inputEmail">Email</label>
+			{% if email %}
+				<input type="email" value="{{ email }}" name="email" id="inputEmail" class="form-control" autocomplete="email" required autofocus>
+			{% else %}
+				<input type="email" value="{{ last_username }}" name="email" id="inputEmail" class="form-control" autocomplete="email" required autofocus>
 
-		<button class="btn btn-lg btn-primary" type="submit">
-			Sign in
-		</button>
-	</form>
+			{% endif %}
+			<label for="inputPassword">Password</label>
+			<input type="password" name="password" id="inputPassword" class="form-control" autocomplete="current-password" required>
+
+			<input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}">
+
+			<button class="btn btn-lg btn-primary" type="submit">
+				Sign in
+			</button>
+		</form>
+	</div>
+	<script>
+		$(document).ready(function () {
+var modalContainer = $("#modal-container");
+var modalBox = $("#modal-box");
+var confirmModal = $("#modal-btn");
+var section = $("#tricks-container");
+
+function hideModal() {
+modalContainer.addClass("hidden");
+modalBox.addClass("hidden");
+}
+
+
+confirmModal.on("click", hideModal);
+
+});
+	</script>
 {% endblock %}
