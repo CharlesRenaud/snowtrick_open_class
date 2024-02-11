@@ -4,7 +4,7 @@
 {% endblock %}
 
 {% block body %}
-	<div class="post-container">
+	<div id="current-post" class="post-container"  data="{{post.id}}">
 
 
 		<div class="header-single-post">
@@ -59,6 +59,27 @@
 			</div>
 		</div>
 	</div>
+{% if app.user is not null %}
+	<div class="new-comment-box" style="margin-bottom: 80px">
+		<textarea id="comment_area" name="comment" placeholder="Time to comment !">
+		</textarea>
+		<button id="add_comment">Add Comment</button>
+	</div>
+	<div id="comment-container" style="margin-bottom: 80px">
+{% endif %}
+	{% if post.comments is not empty %}
+	{% for comment in post.comments %}
+		<div class="comment-card" id="comment-card-{{comment.id}}">
+		{% if is_granted('ROLE_ADMIN') %}
+			<button onclick="removeComment({{comment.id}})" id="delete-comment-btn">Delete Comment</button>
+		{% endif %}
+		<p>{{comment.content}}</p>
+		</div>
+
+	{% endfor %}
+	{% endif %}
+	</div>
+
 </div>
 
 <div class="post-actions">
@@ -71,6 +92,8 @@
 		{% endif %}
 	{% endif %}
 </div>
+
+	<script src="{{asset('js/posts/comments.js') }}"></script>
 
 <script>
 	$(document).ready(function () { // Détecter le mouvement de la molette de la souris
