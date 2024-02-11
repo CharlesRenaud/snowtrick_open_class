@@ -142,8 +142,8 @@ class PostsController extends AbstractController
         // Récupérer tous les groupes uniques
         $allPosts = $entityManager->getRepository(Post::class)->findAll();
         $groups = ["Empty"];
-        foreach ($allPosts as $post) {
-            $group = $post->getGroupe();
+        foreach ($allPosts as $postTime) {
+            $group = $postTime->getGroupe();
             if (!in_array($group, $groups)) {
                 $groups[] = $group;
             }
