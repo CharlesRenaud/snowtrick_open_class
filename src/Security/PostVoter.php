@@ -9,9 +9,9 @@ use Symfony\Component\Security\Core\Authorization\Voter\Voter;
 
 class PostVoter extends Voter
 {
-    const NEW = 'new';
-    const EDIT = 'edit';
-    const DELETE = 'delete';
+    public const NEW = 'new';
+    public const EDIT = 'edit';
+    public const DELETE = 'delete';
 
     protected function supports(string $attribute, mixed $subject): bool
     {

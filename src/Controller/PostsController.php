@@ -28,7 +28,7 @@ class PostsController extends AbstractController
     #[Route('/new', name: 'app_posts_new', methods: ['GET', 'POST'])]
     public function new(Request $request, EntityManagerInterface $entityManager, FileUploader $fileUploader, SessionInterface $session): Response
     {
-        $this->denyAccessUnlessGranted(PostVoter::NEW , new Post());
+        $this->denyAccessUnlessGranted(PostVoter::NEW, new Post());
 
         $post = new Post();
         $form = $this->createForm(PostType::class, $post);
@@ -129,7 +129,7 @@ class PostsController extends AbstractController
                 }
             }
 
-            $post->setUpdatedAt(new DateTime);
+            $post->setUpdatedAt(new DateTime());
             $post->setAuthor($user);
 
             $entityManager->persist($post);
@@ -159,11 +159,11 @@ class PostsController extends AbstractController
     public function delete(Request $request, Post $post, EntityManagerInterface $entityManager, FileUploader $fileUploader): Response
     {
         $this->denyAccessUnlessGranted(PostVoter::DELETE, $post);
-    
+
         if ($this->isCsrfTokenValid('delete' . $post->getId(), $request->request->get('_token'))) {
-          
+
             $comments = $post->getComments();
-    
+
             foreach ($comments as $comment) {
                 $entityManager->remove($comment);
             }
@@ -171,23 +171,22 @@ class PostsController extends AbstractController
             foreach ($images as $image) {
                 $fileUploader->remove($image->getLink());
             }
-    
+
             $mainImage = $post->getMainImage();
             if ($mainImage) {
                 $fileUploader->remove($mainImage);
             }
-    
+
             $entityManager->remove($post);
             $entityManager->flush();
-    
+
             $this->addFlash('success', "The post has been deleted.");
-    
+
             return $this->redirectToRoute('homepage');
         }
-    
+
         $this->addFlash('success', 'Jeton CSRF invalide.');
-    
+
         return $this->redirectToRoute('homepage');
-    }}
-
-
+    }
+}

@@ -1,104 +1,100 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}{{post.title}}
+{% block title %}
+    {{ post.title }}
 {% endblock %}
 
 {% block body %}
-	<div id="current-post" class="post-container" data="{{post.id}}">
-		<div class="header-single-post">
-			{% if post.mainImage is not empty %}
-				<img id="mainImage" class="img-banner" src="/uploads/images/{{ post.mainImage }}">
-			{% else %}
-				<img id="mainImage" class="img-banner" src="/images/empty_img.png">
-			{% endif %}
-			<div class="post-title">
-				<h1>{{ post.title }}</h1>
-			</div>
-		</div>
-		<div class="btnViewGallery" onClick="showMobileGallery()">View gallery</div>
-		<div class="post-gallery">
-			{% if post.images is not empty %}
-				{% for image in post.images %}
-					{% if loop.index > 0 %}
-						<img class="img" src="{{ asset('/uploads/images/' ~ image.getLink()) }}">
-					{% endif %}
-				{% endfor %}
-			{% endif %}
+    <div id="current-post" class="post-container" data="{{ post.id }}">
+        <div class="header-single-post">
+            {% if post.mainImage is not empty %}
+                <img id="mainImage" class="img-banner" src="{{ asset('/uploads/images/' ~ post.mainImage) }}">
+            {% else %}
+                <img id="mainImage" class="img-banner" src="{{ asset('/images/empty_img.png') }}">
+            {% endif %}
+            <div class="post-title">
+                <h1>{{ post.title }}</h1>
+            </div>
+        </div>
+        <div class="btnViewGallery" onclick="showMobileGallery()">View gallery</div>
+        <div class="post-gallery">
+            {% if post.images is not empty %}
+                {% for image in post.images %}
+                    {% if loop.index > 0 %}
+                        <img class="img" src="{{ asset('/uploads/images/' ~ image.getLink()) }}">
+                    {% endif %}
+                {% endfor %}
+            {% endif %}
+            {% if post.videos is not empty %}
+                {% for video in post.videos %}
+                    {% set videoId = video.title|split('/')|last %}
+                    <div class="iframe-box">
+                        <iframe width="500" height="320" allowfullscreen src="https://www.youtube.com/embed/{{ videoId }}"></iframe>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        </div>
+        <div class="post-content">
+            <span id="post-content-span">{{ post.content }}</span>
+            <span id="post-content-markdown"></span>
+            <span title="read more" id="read-more"></span>
+        </div>
+        <div class="post-details">
+            <div class="detail-card">
+                <span>{{ post.groupe }}</span>
+            </div>
+            <div class="detail-card">
+                {% if post.updatedAt and post.updatedAt > post.createdAt %}
+                    <span>{{ post.updatedAt|date('Y-m-d H:i:s') }}</span>
+                {% else %}
+                    <span>{{ post.createdAt|date('Y-m-d H:i:s') }}</span>
+                {% endif %}
+            </div>
+            <div class="detail-card">
+                <img src="{{ asset('/uploads/images/' ~ post.author.image) }}" alt="Author Image">
+                <span>{{ post.author.name }}</span>
+            </div>
+        </div>
+        {% if app.user is not null %}
+            <div class="new-comment-box" style="margin-bottom: 80px">
+                <textarea id="comment_area" name="comment" placeholder="Time to comment !"></textarea>
+                <button id="add_comment">Add Comment</button>
+            </div>
+        {% endif %}
+        <div id="comment-container" style="margin-bottom: 80px">
+            {% if post.comments is not empty %}
+                {% set commentsToShow = post.comments|slice(-10, 10) %}
+                {% for comment in commentsToShow %}
+                    <div class="comment-card" id="comment-card-{{ comment.id }}">
+                        {% if is_granted('ROLE_ADMIN') %}
+                            <button onclick="removeComment({{ comment.id }})" class="delete-comment-btn">Delete</button>
+                        {% endif %}
+                        <div class="comment-author">
+                            <img class="comment-author-img" src="{{ asset('/uploads/images/' ~ comment.author.image) }}" alt="Comment Author Image">
+                            <span class="comment-name">{{ comment.author.name }}</span>
+                            <span class="comment-date">{{ comment.createdAt|date('Y-m-d H:i:s') }}</span>
+                        </div>
+                        <p>{{ comment.content }}</p>
+                    </div>
+                {% endfor %}
+                {% if post.comments|length > 10 %}
+                    <button onclick="fetchComments()" id="show-more-comments">More</button>
+                {% endif %}
+            {% else %}
+                <span>No comments</span>
+            {% endif %}
+        </div>
+        {% if app.user %}
+            <div class="post-actions">
+                <a class="edit-link" href="{{ path('app_posts_edit', {'slug': post.slug}) }}">
+                    <img class="icon-crud" src="{{ asset('/images/edit-icon.png') }}" alt="Edit Icon">
+                </a>
+                {{ include('posts/_delete_form.html.twig') }}
+            </div>
+        {% endif %}
+    </div>
 
-			{% if post.videos is not empty %}
-				{% for video in post.videos %}
-					{% set videoId = video.title|split('/')|last %}
-					<div class="iframe-box">
-						<iframe width="500" height="320" allowfullscreen src="https://www.youtube.com/embed/{{ videoId }}"></iframe>
-					</div>
-				{% endfor %}
-			{% endif %}
-		</div>
-
-		<div class="post-content">
-			<span id="post-content-span">{{ post.content }}</span>
-			<span id="post-content-markdown"></span>
-			<span title="read more" id="read-more"></span>
-		</div>
-
-		<div class="post-details">
-			<div class="detail-card">
-				<span>{{ post.groupe }}</span>
-			</div>
-			<div class="detail-card">
-				{% if post.updatedAt and post.updatedAt > post.createdAt %}
-					<span>{{ post.updatedAt|date('Y-m-d H:i:s') }}</span>
-				{% else %}
-					<span>{{ post.createdAt|date('Y-m-d H:i:s') }}</span>
-				{% endif %}
-			</div>
-			<div class="detail-card">
-				<img src="/uploads/images/{{ post.author.image }}"/>
-				<span>{{ post.author.name }}</span>
-			</div>
-		</div>
-
-		{% if app.user is not null %}
-			<div class="new-comment-box" style="margin-bottom: 80px">
-				<textarea id="comment_area" name="comment" placeholder="Time to comment !"></textarea>
-				<button id="add_comment">Add Comment</button>
-			</div>
-		{% endif %}
-
-		<div id="comment-container" style="margin-bottom: 80px">
-			{% if post.comments is not empty %}
-				{% set commentsToShow = post.comments|slice(-10, 10) %}
-				{% for comment in commentsToShow %}
-					<div class="comment-card" id="comment-card-{{comment.id}}">
-						{% if is_granted('ROLE_ADMIN') %}
-							<button onclick="removeComment({{comment.id}})" class="delete-comment-btn">Delete</button>
-						{% endif %}
-						<div class="comment-author">
-							<img class="comment-author-img" src="/uploads/images/{{comment.author.image}}"></img>
-						<span class="comment-name">{{comment.author.name}}</span>
-						<span class="comment-date">{{comment.createdAt|date('Y-m-d H:i:s')}}</span>
-					</div>
-					<p>{{comment.content}}</p>
-				</div>
-			{% endfor %}
-			{% if post.comments|length > 10 %}
-				<button onclick="fetchComments()" id="show-more-comments">More</button>
-			{% endif %}
-			{% else %}
-			<span>No comments</span>
-		{% endif %}
-	</div>
-
-	{% if app.user %}
-		<div class="post-actions">
-			<a class="edit-link" href="{{ path('app_posts_edit', {'slug': post.slug}) }}">
-				<img class="icon-crud" src="/images/edit-icon.png"/>
-			</a>
-			{{ include('posts/_delete_form.html.twig') }}
-		</div>
-	{% endif %}
-
-	<script src="{{asset('js/posts/comments.js') }}"></script>
-	<script src="{{asset('js/posts/horizontal_scroll_gallery.js') }}"></script>
-	<script src="{{asset('js/posts/content_to_markdown.js') }}"></script>
+    <script src="{{ asset('js/posts/comments.js') }}"></script>
+    <script src="{{ asset('js/posts/horizontal_scroll_gallery.js') }}"></script>
+    <script src="{{ asset('js/posts/content_to_markdown.js') }}"></script>
 {% endblock %}

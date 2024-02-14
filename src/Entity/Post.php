@@ -47,7 +47,7 @@ class Post
     #[MaxDepth(2)]
     private Collection $comments;
 
-    #[ORM\Column(length: 255,  nullable: true)]
+    #[ORM\Column(length: 255, nullable: true)]
     private ?string $mainImage = null;
 
     #[ORM\OneToMany(mappedBy: 'post', targetEntity: Image::class, cascade: ["persist", "remove"])]
@@ -98,7 +98,7 @@ class Post
         return $this;
     }
 
-    
+
     public function getSlug(): ?string
     {
         return $this->slug;
@@ -204,9 +204,9 @@ class Post
     }
 
 
-/**
-     * @return Collection<int, Image>
-     */
+    /**
+         * @return Collection<int, Image>
+         */
     public function getImages(): Collection
     {
         return $this->images;
@@ -291,5 +291,3 @@ class Post
         return $this;
     }
 }
-
-

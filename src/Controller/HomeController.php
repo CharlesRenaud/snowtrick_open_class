@@ -12,8 +12,8 @@ class HomeController extends AbstractController
 {
     #[Route('/home', name: 'homepage', methods: ['GET'])]
     public function index(Request $request, PostRepository $postRepository): Response
-    {   
-        
+    {
+
         $posts = $postRepository->findBy(
             [],
             ['createdAt' => 'DESC'],

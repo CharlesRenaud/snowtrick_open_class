@@ -31,8 +31,7 @@ class MailerController extends AbstractController
             ]);
 
         $mailer->send($email);
-        
+
         return new Response('E-mail de confirmation envoyé');
     }
 }
-
