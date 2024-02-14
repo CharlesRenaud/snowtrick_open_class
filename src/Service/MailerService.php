@@ -13,12 +13,13 @@ class MailerService extends AbstractController
     private $userRepository;
     private $mailer;
 
-    public function __construct(MailerInterface $mailer) {
+    public function __construct(MailerInterface $mailer)
+    {
         $this->mailer = $mailer;
     }
-    public function sendRegistrationConfirmationEmail(string $userEmail,  string $token): Response
+    public function sendRegistrationConfirmationEmail(string $userEmail, string $token): Response
     {
-        
+
         $email = (new TemplatedEmail())
             ->from('renaudcharlespro@gmail.com')
             ->to($userEmail)
@@ -34,9 +35,9 @@ class MailerService extends AbstractController
         return new Response('E-mail de confirmation envoyé');
     }
 
-    public function sendPasswordReset(string $userEmail,  string $token): Response
+    public function sendPasswordReset(string $userEmail, string $token): Response
     {
-        
+
         $email = (new TemplatedEmail())
             ->from('renaudcharlespro@gmail.com')
             ->to($userEmail)
@@ -52,4 +53,3 @@ class MailerService extends AbstractController
         return new Response('E-mail de confirmation envoyé');
     }
 }
-

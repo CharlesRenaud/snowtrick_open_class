@@ -17,7 +17,6 @@ use App\Service\MailerService;
 use App\Repository\UserRepository;
 use Symfony\Component\Mailer\MailerInterface;
 
-
 class RegistrationController extends AbstractController
 {
     #[Route('/register', name: 'app_register')]
@@ -28,7 +27,6 @@ class RegistrationController extends AbstractController
         MailerInterface $mailerInterface,
         UserRepository $userRepository,
         MailerService $mailerService
-
     ): Response {
         if ($this->getUser()) {
             return $this->redirectToRoute('homepage');

@@ -1,4 +1,4 @@
-<?php 
+<?php
 
 namespace App\Controller;
 
@@ -8,7 +8,6 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use App\Form\UserImageType;
 use Symfony\Component\Routing\Annotation\Route;
-
 
 class UserController extends AbstractController
 {
