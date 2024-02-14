@@ -1,7 +1,6 @@
 var sendCommentBtn = document.getElementById("add_comment");
 var commentTextarea = document.getElementById("comment_area");
-var postId = document.getElementById("current-post").getAttribute("data")
-var deleteCommentBtn = document.getElementById("delete-comment-btn");
+var postId = document.getElementById("current-post").getAttribute("data");
 
 sendCommentBtn.addEventListener("click", function () {
     var commentContent = commentTextarea.value;
@@ -10,30 +9,25 @@ sendCommentBtn.addEventListener("click", function () {
         comment: commentContent
     };
 
-    var options = {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(data)
+    var xhr = new XMLHttpRequest();
+    xhr.open('POST', '/add-comment/' + postId, true);
+    xhr.setRequestHeader('Content-Type', 'application/json');
+    xhr.onload = function () {
+        if (xhr.status >= 200 && xhr.status < 300) {
+            var responseData = JSON.parse(xhr.responseText);
+            console.log(responseData);
+            createCommentElement(responseData.comment);
+            commentTextarea.value = "";
+            fetchComments();
+        } else {
+            console.error('Error:', xhr.statusText);
+        }
+    };
+    xhr.onerror = function () {
+        console.error('Request failed');
     };
     if (commentContent.length > 2) {
-        fetch('/add-comment/' + postId, options)
-            .then(response => {
-                if (response.ok) {
-                    return response.json();
-                }
-                throw new Error('Error during the request.');
-            })
-            .then(data => {
-                console.log(data);
-                createCommentElement(data.comment);
-                commentTextarea.value = "";
-                fetchComments();
-            })
-            .catch(error => {
-                console.error('Error:', error);
-            });
+        xhr.send(JSON.stringify(data));
     }
 });
 
@@ -45,7 +39,7 @@ function createCommentElement(commentData) {
     if (commentData.author.role.includes('ROLE_ADMIN')) {
         var deleteButton = document.createElement("button");
         deleteButton.textContent = "Delete";
-        deleteButton.classList.add("delete-comment-btn")
+        deleteButton.classList.add("delete-comment-btn");
         deleteButton.onclick = function () {
             removeComment(commentData.id);
         };
@@ -81,60 +75,52 @@ function createCommentElement(commentData) {
 }
 
 function fetchComments() {
-    fetch('/get-comments/' + postId)
-        .then(response => {
-            if (response.ok) {
-                return response.json();
-            }
-            throw new Error('Error during the request.');
-        })
-        .then(data => {
+    var xhr = new XMLHttpRequest();
+    xhr.open('GET', '/get-comments/' + postId, true);
+    xhr.onload = function () {
+        if (xhr.status >= 200 && xhr.status < 300) {
+            var responseData = JSON.parse(xhr.responseText);
             var commentContainer = document.getElementById("comment-container");
             commentContainer.innerHTML = "";
 
-            data.comments.forEach(comment => {
+            responseData.comments.forEach(comment => {
                 createCommentElement(comment);
             });
-        })
-        .catch(error => {
-            console.error('Error:', error);
-        });
+        } else {
+            console.error('Error:', xhr.statusText);
+        }
+    };
+    xhr.onerror = function () {
+        console.error('Request failed');
+    };
+    xhr.send();
 }
 
-function removeComment($commentId) {
+function removeComment(commentId) {
     let isConfirmed = window.confirm("Are you sure you want to delete this comment?");
 
     if (isConfirmed) {
         var data = {
-            commentId: $commentId,
+            commentId: commentId,
             postId: postId
         };
 
-        var options = {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(data)
+        var xhr = new XMLHttpRequest();
+        xhr.open('POST', '/delete-comment', true);
+        xhr.setRequestHeader('Content-Type', 'application/json');
+        xhr.onload = function () {
+            if (xhr.status >= 200 && xhr.status < 300) {
+                var responseData = JSON.parse(xhr.responseText);
+                console.log(responseData);
+                var commentToDelete = document.getElementById("comment-card-" + commentId);
+                commentToDelete.style.display = "none";
+            } else {
+                console.error('Error:', xhr.statusText);
+            }
         };
-
-        fetch('/delete-comment', options)
-            .then(response => {
-                if (response.ok) {
-                    return response.json();
-                }
-                throw new Error('Error during the request.');
-            })
-            .then(data => {
-                console.log(data);
-                var commentToDelete = document.getElementById("comment-card-" + String($commentId))
-                commentToDelete.style.display = "none"
-            })
-            .catch(error => {
-                console.error('Error:', error);
-            });
+        xhr.onerror = function () {
+            console.error('Request failed');
+        };
+        xhr.send(JSON.stringify(data));
     }
-};
-
-
-
+}
