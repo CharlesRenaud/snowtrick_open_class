@@ -22,19 +22,20 @@ document.addEventListener('DOMContentLoaded', function () {
                     var formData = new FormData();
                     formData.append('profile_image', file);
 
-                    // Envoyer la requête Fetch
-                    fetch('/change-profile-image', {
-                        method: 'POST',
-                        body: formData
-                    })
-                        .then(response => {
-                            if (response.ok) {
-                                console.log('Image uploaded successfully');
-                            } else {
-                                console.error('Error uploading image');
-                            }
-                        })
-                        .catch(error => console.error('Error uploading image:', error));
+                    // Envoyer la requête XMLHttpRequest
+                    var xhr = new XMLHttpRequest();
+                    xhr.open('POST', '/change-profile-image', true);
+                    xhr.onload = function () {
+                        if (xhr.status >= 200 && xhr.status < 300) {
+                            console.log('Image uploaded successfully');
+                        } else {
+                            console.error('Error uploading image');
+                        }
+                    };
+                    xhr.onerror = function () {
+                        console.error('Request failed');
+                    };
+                    xhr.send(formData);
                 };
 
                 reader.readAsDataURL(file);
