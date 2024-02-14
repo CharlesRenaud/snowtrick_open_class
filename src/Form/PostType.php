@@ -7,7 +7,6 @@ use App\Form\VideoType;
 use App\Form\ImageType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\CollectionType;
-use Symfony\Component\Form\Extension\Core\Type\HiddenType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Form\Extension\Core\Type\FileType;
@@ -27,13 +26,13 @@ class PostType extends AbstractType
                 'required' => false
             ])
             ->add('groupe')
-            ->add('mainImage',  FileType::class, [
+            ->add('mainImage', FileType::class, [
                 'label' => "Ajouter l'image de couverture",
                 'mapped' => false,
                 'multiple' => false,
                 'required' => false,
                 'attr' => ['accept' => 'image/*'],
-            ])            
+            ])
             ->add('images', CollectionType::class, [
                 'entry_type' => ImageType::class,
                 'entry_options' => ['label' => false],

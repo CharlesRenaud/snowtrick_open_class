@@ -3,7 +3,6 @@
 namespace App\Controller;
 
 use App\Entity\Post;
-use App\Entity\Image;
 use App\Form\PostType;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -15,7 +14,6 @@ use App\Service\FileUploader;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 use App\Security\PostVoter;
-use Symfony\Component\HttpFoundation\File\UploadedFile;
 
 #[Route('/post')]
 class PostsController extends AbstractController
@@ -30,7 +28,6 @@ class PostsController extends AbstractController
     #[Route('/new', name: 'app_posts_new', methods: ['GET', 'POST'])]
     public function new(Request $request, EntityManagerInterface $entityManager, FileUploader $fileUploader, SessionInterface $session): Response
     {
-        // Vérifiez l'accès en utilisant le Voter
         $this->denyAccessUnlessGranted(PostVoter::NEW , new Post());
 
         $post = new Post();
@@ -42,7 +39,6 @@ class PostsController extends AbstractController
             $post->setAuthor($this->getUser());
 
             $images = $form->get('images')->getData();
-
             foreach ($images as $image) {
                 $imageFilename = $fileUploader->upload($image->getUploadedFile());
                 $image->setLink($imageFilename);
@@ -51,58 +47,64 @@ class PostsController extends AbstractController
             }
 
             $videos = $form->get('videos')->getData();
-
             foreach ($videos as $video) {
                 $post->addVideos($video);
-                $video->setPost($post); // Assurez-vous que la vidéo est associée au post
+                $video->setPost($post);
             }
 
             $mainImage = $form->get('mainImage')->getData();
-            $mainImageFileName = $fileUploader->upload($mainImage);
-            $post->setMainImage($mainImageFileName);
+            if ($mainImage) {
+                $mainImageFileName = $fileUploader->upload($mainImage);
+                $post->setMainImage($mainImageFileName);
+            }
 
             $entityManager->persist($post);
             $entityManager->flush();
 
-            $this->addFlash('success', 'La publication de la nouvelle figure a été créée avec succès.');
+            $this->addFlash('success', 'The publication of the new figure has been successfully created.');
             return $this->redirectToRoute('homepage', [], Response::HTTP_SEE_OTHER);
         }
 
+        $allPosts = $entityManager->getRepository(Post::class)->findAll();
+        $groups = ["Type"];
+        foreach ($allPosts as $postTime) {
+            $group = $postTime->getGroupe();
+            if (!in_array($group, $groups)) {
+                $groups[] = $group;
+            }
+        }
+
         return $this->render('posts/new.html.twig', [
+            'allGroups' => $groups,
             'post' => $post,
             'form' => $form,
         ]);
     }
 
-    #[Route('/{id}', name: 'app_posts_show', methods: ['GET'])]
+    #[Route('/{slug}', name: 'app_posts_show', methods: ['GET'])]
     public function show(Post $post): Response
     {
+
         return $this->render('posts/show.html.twig', [
             'post' => $post,
         ]);
     }
 
-    #[Route('/{id}/edit', name: 'app_posts_edit', methods: ['GET', 'POST'])]
+    #[Route('/{slug}/edit', name: 'app_posts_edit', methods: ['GET', 'POST'])]
     public function edit(Request $request, Post $post, EntityManagerInterface $entityManager, FileUploader $fileUploader): Response
     {
-        // Vérifiez l'accès en utilisant le Voter
         $this->denyAccessUnlessGranted(PostVoter::EDIT, $post);
-
-        // Créez le formulaire en passant les données du post, y compris les images existantes
         $form = $this->createForm(PostType::class, $post);
-
         $form->handleRequest($request);
-
+        $user = $this->getUser();
 
         if ($form->isSubmitted() && $form->isValid()) {
             $mainImage = $form->get('mainImage')->getData();
             if ($mainImage !== null) {
-                // Si une nouvelle image principale a été téléchargée, supprimez l'ancienne
                 $existingMainImage = $post->getMainImage();
                 if ($existingMainImage) {
                     $fileUploader->remove($existingMainImage);
                 }
-                // Téléchargez la nouvelle image principale et mettez à jour l'entité
                 $mainImageFileName = $fileUploader->upload($mainImage);
                 $post->setMainImage($mainImageFileName);
             }
@@ -117,9 +119,7 @@ class PostsController extends AbstractController
                 }
             }
 
-
             $videos = $form->get('videos')->getData();
-
             foreach ($videos as $video) {
                 if ($video->getTitle() === null) {
                     $post->removeVideos($video);
@@ -130,18 +130,17 @@ class PostsController extends AbstractController
             }
 
             $post->setUpdatedAt(new DateTime);
+            $post->setAuthor($user);
 
-            // Flush pour enregistrer les modifications
             $entityManager->persist($post);
             $entityManager->flush();
 
-            $this->addFlash('success', 'Modification de la figure effectué.');
+            $this->addFlash('success', 'The modification of the figure has been completed.');
             return $this->redirectToRoute('homepage', [], Response::HTTP_SEE_OTHER);
         }
 
-        // Récupérer tous les groupes uniques
         $allPosts = $entityManager->getRepository(Post::class)->findAll();
-        $groups = ["Empty"];
+        $groups = ["Type"];
         foreach ($allPosts as $postTime) {
             $group = $postTime->getGroupe();
             if (!in_array($group, $groups)) {
@@ -156,29 +155,39 @@ class PostsController extends AbstractController
         ]);
     }
 
-
     #[Route('/{id}', name: 'app_posts_delete', methods: ['POST'])]
     public function delete(Request $request, Post $post, EntityManagerInterface $entityManager, FileUploader $fileUploader): Response
     {
-        // Vérifiez l'accès en utilisant le Voter
         $this->denyAccessUnlessGranted(PostVoter::DELETE, $post);
-
+    
         if ($this->isCsrfTokenValid('delete' . $post->getId(), $request->request->get('_token'))) {
-            // Remove images associated with the post from the server
+          
+            $comments = $post->getComments();
+    
+            foreach ($comments as $comment) {
+                $entityManager->remove($comment);
+            }
             $images = $post->getImages();
             foreach ($images as $image) {
-                $fileUploader->remove($image->getTitle());
+                $fileUploader->remove($image->getLink());
             }
-
-            // Remove the post itself
+    
+            $mainImage = $post->getMainImage();
+            if ($mainImage) {
+                $fileUploader->remove($mainImage);
+            }
+    
             $entityManager->remove($post);
             $entityManager->flush();
+    
+            $this->addFlash('success', "The post has been deleted.");
+    
+            return $this->redirectToRoute('homepage');
         }
-
-        $this->addFlash('success', 'Suppression de la figure effectuée.');
-        return $this->redirectToRoute('homepage', [], Response::HTTP_SEE_OTHER);
-    }
-
-}
+    
+        $this->addFlash('success', 'Jeton CSRF invalide.');
+    
+        return $this->redirectToRoute('homepage');
+    }}
 
 

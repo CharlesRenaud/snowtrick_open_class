@@ -1,13 +1,12 @@
 {% extends 'base.html.twig' %}
 
-
+{% block title %}Edit {{post.title}}
+{% endblock %}
 {% block body %}
 
 	{{ include('posts/_form.html.twig', {'button_label': 'Update'}) }}
 
-	<a href="{{ path('homepage') }}">back to list</a>
-
-	<div style="transform: translateY(-60px)">
+	<div id="delete-btn-import">
 			{{ include('posts/_delete_form.html.twig') }}
 	</div>
 {% endblock %}

@@ -12,24 +12,23 @@ class UserImageType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
-$builder
-        ->add('image', FileType::class, [
-            'label' => 'Image',
-            'required' => false,
-            'data_class' => null,
-            'constraints' => [
-                new File([
-                    'mimeTypes' => [
-                        'image/jpeg',
-                        'image/png',
-                        'image/gif',
-                    ],
-                    'mimeTypesMessage' => 'Veuillez télécharger un fichier image valide (JPEG, PNG ou GIF).',
-                ]),
-            ],
-        ]);
+        $builder
+            ->add('image', FileType::class, [
+                'label' => 'Image',
+                'required' => false,
+                'data_class' => null,
+                'constraints' => [
+                    new File([
+                        'mimeTypes' => [
+                            'image/jpeg',
+                            'image/png',
+                            'image/gif',
+                        ],
+                        'mimeTypesMessage' => 'Veuillez télécharger un fichier image valide (JPEG, PNG ou GIF).',
+                    ]),
+                ],
+            ]);
     }
-
 
     public function configureOptions(OptionsResolver $resolver): void
     {

@@ -6,65 +6,84 @@
 		<img class="bg-site" src="{{ asset('images/bg-site-snow.jpg') }}" alt="background snowboard trick"/>
 		<h2 class="claim">
 			SnowTricks Community
-		</h2>
-		<div class="bouncing-container">
-			<img id="icon-bouncing" class="icon-down" src="{{ asset('images/down-icon.png') }}" alt="background snowboard trick"/>
-		</div>
+
+			{% if app.user is not null and app.user.image is not null %}
+				<div class="logged-user-container">
+					<img title='change' id="profile-img" src="{{ asset('uploads/images/' ~ app.user.image) }}" alt="Image de l'utilisateur"/>
+					<span>
+						{{ app.user.name }}
+						{% if is_granted('ROLE_ADMIN') %}
+							<span id="role-admin">
+								Admin
+							</span>
+						{% endif %}
+					</span>
+					<input id="add_new_profile_img" type="file" accept="image/*"></input>
+			</div>
+		{% endif %}
+	</h2>
+	<div class="bouncing-container">
+		<img id="icon-bouncing" class="icon-down" src="{{ asset('images/down-icon.png') }}" alt="background snowboard trick"/>
 	</div>
+</div>
 
-	<div id="tricks-container">
+<div id="tricks-container">
 
-		{% for message in app.flashes('success') %}
-			<div id="modal-container" class="black-bg-opacity">
-				<div id="modal-box" class="modal-success">
-					<p>{{ message }}</p>
-					<button id="modal-btn" class="hide-modal-btn">Super !</button>
+	{% for message in app.flashes('success') %}
+		<div id="modal-container" class="black-bg-opacity">
+			<div id="modal-box" class="modal-success">
+				<p>{{ message }}</p>
+				<button id="modal-btn" class="hide-modal-btn">Super !</button>
+			</div>
+		</div>
+	{% endfor %}
+
+
+	<div class="card-container" id="post-container">
+		{% for post in posts %}
+			<div class="card">
+				<div class="card-media">
+					<a href="{{ path('app_posts_show', {'slug': post.slug}) }}">
+						{% if post.mainImage is not empty %}
+							<img class="img" src="/uploads/images/{{ post.mainImage }}">
+						{% else %}
+							<img class="img" src="/images/empty_img.png">
+						{% endif %}
+					</a>
+				</div>
+				<div class="card-header">
+
+					<a id="title-post-link" href="{{ path('app_posts_show', {'slug': post.slug}) }}">
+						<span class="card-title">{{ post.title }}</span>
+					</a>
+
+					<span class="card-actions">
+						{% if app.user %}
+							{% if app.user %}
+								<a class="edit-link" href="{{ path('app_posts_edit', {'slug': post.slug}) }}">
+									<img class="icon-crud" src="/images/edit-icon.png"/>
+								</a>
+								<div>
+									{{ include('posts/_delete_form.html.twig') }}
+								</div>
+							{% endif %}
+						{% endif %}
+
+
+					</span>
 				</div>
 			</div>
+		{% else %}
+			<div class="no-records-found">No records found</div>
 		{% endfor %}
 
-
-		<div class="card-container" id="post-container">
-			{% for post in posts %}
-				<div class="card">
-					<div class="card-media">
-						{% if post.mainImage is not empty %}
-								<img class="img" src="/uploads/images/{{ post.mainImage }}">
-						{% else %}
-								<img class="img" src="/images/empty_img.png">
-						{% endif %}
-					</div>
-					<div class="card-header">
-						<span class="card-title">{{ post.title }}</span>
-						<span class="card-actions">
-							<a href="{{ path('app_posts_show', {'id': post.id}) }}">
-								<img class="icon-crud" src="/images/show-icon.png"/>
-							</a>
-							{% if app.user %}
-								{% if app.user.id == post.author.id %}
-									<a class="edit-link" href="{{ path('app_posts_edit', {'id': post.id}) }}">
-										<img class="icon-crud" src="/images/edit-icon.png"/>
-									</a>
-								{% endif %}
-							{% endif %}
-
-
-						</span>
-					</div>
-				</div>
-			{% else %}
-				<div class="no-records-found">No records found</div>
-			{% endfor %}
-
-			<div class="bouncing-container up">
-				<img id="icon-bouncing-up" class="icon-down up" src="{{ asset('images/down-icon.png') }}" alt="background snowboard trick"/>
-			</div>
+		<div class="bouncing-container up">
+			<img id="icon-bouncing-up" class="icon-down up" src="{{ asset('images/down-icon.png') }}" alt="background snowboard trick"/>
 		</div>
-
-		<div id="loadMore">Load More</div>
-
-
 	</div>
-    <script src="{{ asset('js/home.js') }}" data-user-id="{% if app.user %}{{ app.user.id }}{% else %}null{% endif %}"></script>
 
-{% endblock %}
+	<div id="loadMore">Load More</div>
+
+
+</div>
+<script src="{{ asset('js/home.js') }}" data-user-id="{% if app.user %}{{ app.user.id }}{% else %}null{% endif %}"></script>{% endblock %}

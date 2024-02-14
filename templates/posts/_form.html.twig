@@ -43,7 +43,9 @@
 				{% for video in post.videos %}
 					{% set videoId = video.title|split('/')|last %}
 					<div class="video-container" id="videoContainer_{{ loop.index }}">
-						<iframe width="500" height="320" src="https://www.youtube.com/embed/{{ videoId }}"></iframe>
+						<div class="iframe-box">
+							<iframe width="500" height="320" src="https://www.youtube.com/embed/{{ videoId }}"></iframe>
+						</div>
 						<div class="video-actions">
 							<a>
 								<img id="edit_video_btn_{{loop.index}}" onclick="toggleVideoInput('{{ loop.index }}')" class="icon-crud" src="/images/edit-icon.png">
@@ -56,23 +58,34 @@
 		</div>
 
 		<div class="edit-form-container">
-			{{ form_row(form.content) }}
-			<button onclick="addImageInput('{{  form.images|length > 0 ? form.images|last.vars.name + 1 : 0  }}')" type="button" class="add_image_link" data-collection-holder-class="images">Add an image</button>
-			<ul class="images" data-index="{{ form.images|length > 0 ? form.images|last.vars.name + 1 : 0 }}" data-prototype="{{ form_widget(form.images.vars.prototype)|e('html_attr') }}"></ul>
 
-			{{ form_row(form.images) }}
-			<button onclick="addVideoInput('{{  form.videos|length > 0 ? form.videos|last.vars.name + 1 : 0  }}')" type="button" class="add_item_link" data-collection-holder-class="videos">Add a video</button>
-			<ul class="videos" data-index="{{ form.videos|length > 0 ? form.videos|last.vars.name + 1 : 0 }}" data-prototype="{{ form_widget(form.videos.vars.prototype)|e('html_attr') }}"></ul>
-			{{ form_row(form.videos) }}
+			<div class="input-edit-container">
+				<button onclick="addImageInput('{{  form.images|length > 0 ? form.images|last.vars.name + 1 : 0  }}')" type="button" class="add_image_link" data-collection-holder-class="images">Add an image</button>
+				<ul class="images" data-index="{{ form.images|length > 0 ? form.images|last.vars.name + 1 : 0 }}" data-prototype="{{ form_widget(form.images.vars.prototype)|e('html_attr') }}"></ul>
 
-			<div class="form-select-box">
-				<select id="groupe-select" name="group">
-					{% for group in allGroups %}
-						<option value="{{ group }}">{{ group }}</option>
-					{% endfor %}
-				</select>
+				{{ form_row(form.images) }}
+				<button onclick="addVideoInput('{{  form.videos|length > 0 ? form.videos|last.vars.name + 1 : 0  }}')" type="button" class="add_item_link" data-collection-holder-class="videos">Add a video</button>
+				<ul class="videos" data-index="{{ form.videos|length > 0 ? form.videos|last.vars.name + 1 : 0 }}" data-prototype="{{ form_widget(form.videos.vars.prototype)|e('html_attr') }}"></ul>
+				{{ form_row(form.videos) }}
+
+				<div class="form-select-box">
+					<select id="groupe-select" name="group">
+						{% if allGroups is not empty %}
+							{% for group in allGroups %}
+								<option value="{{ group }}">{{ group }}</option>
+							{% endfor %}
+						{% endif %}
+					</select>
+				</div>
+				<div class="form-groupe-box">
+					{{ form_row(form.groupe) }}
+				</div>
+
 			</div>
-			{{ form_row(form.groupe) }}
+			<div class="textarea-edit-container">
+				{{ form_row(form.content) }}
+				<p id="markdown-output"></p>
+			</div>
 
 
 			<div class="delete-post">

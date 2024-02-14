@@ -1,7 +1,6 @@
 function deleteImageRequest(index) {
 
     index = (index - 1)
-    console.log(index)
 
     let deleteInput = document.getElementsByClassName("delete_image_input");
 
@@ -15,7 +14,6 @@ function deleteImageRequest(index) {
 
     if (isConfirmed) {
         let inputId = input.dataset.id;
-        console.log(inputId);
 
         fetch(`/delete-image/${inputId}`, {
             method: 'POST',
@@ -31,8 +29,6 @@ function deleteImageRequest(index) {
     }
 }
 
-
-
 function deleteMainImageRequest() {
 
     let postId = document.getElementById("post_container_main").getAttribute("data");
@@ -41,11 +37,9 @@ function deleteMainImageRequest() {
 
     if (isConfirmed) {
         if (InputAddMainImage == null) {
-            console.log("Fetch requis")
             fetchDeleteMainImage(postId)
 
         } else {
-            console.log("Image deja presente")
             InputAddMainImage.value = "";
             document.getElementById("mainImage").src = "/images/empty_img.png"
             fetchDeleteMainImage(postId)

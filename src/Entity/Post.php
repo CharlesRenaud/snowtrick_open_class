@@ -3,6 +3,7 @@
 namespace App\Entity;
 
 use App\Repository\PostRepository;
+use Cocur\Slugify\Slugify;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
@@ -15,6 +16,7 @@ use Symfony\Component\Serializer\Annotation\MaxDepth;
 
 #[ORM\Entity(repositoryClass: PostRepository::class)]
 #[UniqueEntity(fields: ["title"], message: "Ce titre existe déjà.")]
+#[ORM\HasLifecycleCallbacks]
 
 class Post
 {
@@ -25,7 +27,7 @@ class Post
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
-    private ?string $title = null;
+    private ?string $title;
 
     #[ORM\Column(type: Types::TEXT)]
     private ?string $content = null;
@@ -45,7 +47,7 @@ class Post
     #[MaxDepth(2)]
     private Collection $comments;
 
-    #[ORM\Column(length: 255)]
+    #[ORM\Column(length: 255,  nullable: true)]
     private ?string $mainImage = null;
 
     #[ORM\OneToMany(mappedBy: 'post', targetEntity: Image::class, cascade: ["persist", "remove"])]
@@ -60,6 +62,9 @@ class Post
     #[ORM\Column(length: 255)]
     private ?string $groupe = null;
 
+    #[ORM\Column(length: 255, unique: true)]
+    private ?string $slug;
+
     public function __construct()
     {
         $this->comments = new ArrayCollection();
@@ -67,6 +72,13 @@ class Post
         $this->images = new ArrayCollection();
         $this->updatedAt = new DateTime();
         $this->createdAt = new DateTime();
+    }
+    #[ORM\PrePersist]
+    #[ORM\PreUpdate]
+    public function prePersistOrUpdate()
+    {
+        $slugify = new Slugify();
+        $this->slug = $slugify->slugify($this->title);
     }
 
     public function getId(): ?int
@@ -82,6 +94,19 @@ class Post
     public function setTitle(string $title): static
     {
         $this->title = $title;
+
+        return $this;
+    }
+
+    
+    public function getSlug(): ?string
+    {
+        return $this->slug;
+    }
+
+    public function setSlug(string $slug): static
+    {
+        $this->slug = $slug;
 
         return $this;
     }
