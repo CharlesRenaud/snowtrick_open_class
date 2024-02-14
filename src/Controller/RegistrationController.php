@@ -42,7 +42,6 @@ class RegistrationController extends AbstractController
 
             $token = bin2hex(random_bytes(16));
 
-            // encode the plain password
             $user->setPassword(
                 $userPasswordHasher->hashPassword(
                     $user,
@@ -52,7 +51,6 @@ class RegistrationController extends AbstractController
 
             $user->setName($form->get('name')->getData());
 
-            // Associez le token à l'utilisateur
             $user->setVerificationToken($token);
 
 
@@ -60,7 +58,6 @@ class RegistrationController extends AbstractController
             $entityManager->flush();
             $email = $user->getEmail();
 
-            // Utilisez le contrôleur de messagerie pour envoyer l'e-mail de confirmation
             $mailerService->sendRegistrationConfirmationEmail($email, $token);
 
             $this->addFlash("success", "Inscription validé, connecte toi et n'oublie pas de valider ton compte sur ton email ! ");
@@ -89,7 +86,6 @@ class RegistrationController extends AbstractController
         }
         $token = bin2hex(random_bytes(16));
 
-        // Si l'utilisateur n'est pas déjà vérifié, marquez-le comme vérifié
         if (!$user->isVerified()) {
             $user->setIsVerified(true);
             $user->setRoles(["ROLE_USER"]);

@@ -1,31 +1,29 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Post
+{% block title %}{{post.title}}
 {% endblock %}
 
 {% block body %}
-	<div id="current-post" class="post-container"  data="{{post.id}}">
-
-
+	<div id="current-post" class="post-container" data="{{post.id}}">
 		<div class="header-single-post">
 			{% if post.mainImage is not empty %}
-				<img class="img-banner" src="/uploads/images/{{ post.mainImage}}">
+				<img id="mainImage" class="img-banner" src="/uploads/images/{{ post.mainImage }}">
+			{% else %}
+				<img id="mainImage" class="img-banner" src="/images/empty_img.png">
 			{% endif %}
 			<div class="post-title">
 				<h1>{{ post.title }}</h1>
 			</div>
 		</div>
-
+		<div class="btnViewGallery" onClick="showMobileGallery()">View gallery</div>
 		<div class="post-gallery">
-		
 			{% if post.images is not empty %}
 				{% for image in post.images %}
 					{% if loop.index > 0 %}
 						<img class="img" src="{{ asset('/uploads/images/' ~ image.getLink()) }}">
 					{% endif %}
 				{% endfor %}
-			{% endif %} 
-
+			{% endif %}
 
 			{% if post.videos is not empty %}
 				{% for video in post.videos %}
@@ -38,9 +36,10 @@
 		</div>
 
 		<div class="post-content">
-			<span>{{ post.content }}</span>
+			<span id="post-content-span">{{ post.content }}</span>
+			<span id="post-content-markdown"></span>
+			<span title="read more" id="read-more"></span>
 		</div>
-
 
 		<div class="post-details">
 			<div class="detail-card">
@@ -58,78 +57,48 @@
 				<span>{{ post.author.name }}</span>
 			</div>
 		</div>
-	</div>
-{% if app.user is not null %}
-	<div class="new-comment-box" style="margin-bottom: 80px">
-		<textarea id="comment_area" name="comment" placeholder="Time to comment !">
-		</textarea>
-		<button id="add_comment">Add Comment</button>
-	</div>
-	<div id="comment-container" style="margin-bottom: 80px">
-{% endif %}
-	{% if post.comments is not empty %}
-	{% for comment in post.comments %}
-		<div class="comment-card" id="comment-card-{{comment.id}}">
-		{% if is_granted('ROLE_ADMIN') %}
-			<button onclick="removeComment({{comment.id}})" id="delete-comment-btn">Delete Comment</button>
+
+		{% if app.user is not null %}
+			<div class="new-comment-box" style="margin-bottom: 80px">
+				<textarea id="comment_area" name="comment" placeholder="Time to comment !"></textarea>
+				<button id="add_comment">Add Comment</button>
+			</div>
 		{% endif %}
-		<p>{{comment.content}}</p>
-		</div>
 
-	{% endfor %}
-	{% endif %}
+		<div id="comment-container" style="margin-bottom: 80px">
+			{% if post.comments is not empty %}
+				{% set commentsToShow = post.comments|slice(-10, 10) %}
+				{% for comment in commentsToShow %}
+					<div class="comment-card" id="comment-card-{{comment.id}}">
+						{% if is_granted('ROLE_ADMIN') %}
+							<button onclick="removeComment({{comment.id}})" class="delete-comment-btn">Delete</button>
+						{% endif %}
+						<div class="comment-author">
+							<img class="comment-author-img" src="/uploads/images/{{comment.author.image}}"></img>
+						<span class="comment-name">{{comment.author.name}}</span>
+						<span class="comment-date">{{comment.createdAt|date('Y-m-d H:i:s')}}</span>
+					</div>
+					<p>{{comment.content}}</p>
+				</div>
+			{% endfor %}
+			{% if post.comments|length > 10 %}
+				<button onclick="fetchComments()" id="show-more-comments">More</button>
+			{% endif %}
+			{% else %}
+			<span>No comments</span>
+		{% endif %}
 	</div>
 
-</div>
-
-<div class="post-actions">
 	{% if app.user %}
-		{% if app.user.id == post.author.id %}
-			<a class="edit-link" href="{{ path('app_posts_edit', {'id': post.id}) }}">
+		<div class="post-actions">
+			<a class="edit-link" href="{{ path('app_posts_edit', {'slug': post.slug}) }}">
 				<img class="icon-crud" src="/images/edit-icon.png"/>
 			</a>
 			{{ include('posts/_delete_form.html.twig') }}
-		{% endif %}
+		</div>
 	{% endif %}
-</div>
 
 	<script src="{{asset('js/posts/comments.js') }}"></script>
-
-<script>
-	$(document).ready(function () { // Détecter le mouvement de la molette de la souris
-$('.post-gallery').on('wheel', function (e) { // Empêcher le défilement vertical par défaut
-e.preventDefault();
-
-// Faire défiler horizontalement en fonction du mouvement de la molette
-this.scrollLeft += e.originalEvent.deltaY;
-});
-
-
-$('.post-gallery').on('click', '.img, .iframe-box', function (event) {
-event.stopPropagation();
-
-if ($(this).find('iframe').length) {
-console.log("L'élément enfant est un iframe.");
-}
-
-// Vérifie si l'élément cliqué est une iframe
-if ($(this).is('iframe')) {
-var iframeSrc = $(this).attr('src');
-var content = $('<iframe>').attr('src', iframeSrc);
-} else {
-var content = $(this).clone();
-}
-
-var modal = $('<div class="modal"></div>').append(content);
-
-$('body').append(modal);
-});
-
-$('body').on('click', function () { // Sélectionne le premier élément avec la classe "modal"
-var modal = document.querySelector('.modal');
-if (modal) {
-modal.remove();
-}
-});
-});
-</script>{% endblock %}
+	<script src="{{asset('js/posts/horizontal_scroll_gallery.js') }}"></script>
+	<script src="{{asset('js/posts/content_to_markdown.js') }}"></script>
+{% endblock %}

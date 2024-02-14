@@ -44,23 +44,10 @@
 			<button class="btn btn-lg btn-primary" type="submit">
 				Sign in
 			</button>
+			<div><a class="not-register" href="/register">Not register ?</a></div>
 		</form>
 	</div>
-	<script>
-		$(document).ready(function () {
-var modalContainer = $("#modal-container");
-var modalBox = $("#modal-box");
-var confirmModal = $("#modal-btn");
-var section = $("#tricks-container");
 
-function hideModal() {
-modalContainer.addClass("hidden");
-modalBox.addClass("hidden");
-}
+	<script src="{{asset('js/login-modal.js') }}"></script>
 
-
-confirmModal.on("click", hideModal);
-
-});
-	</script>
 {% endblock %}

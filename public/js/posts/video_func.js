@@ -1,11 +1,18 @@
+var initalIndex = document.getElementById("gallery").childElementCount;
+
+
 function toggleVideoContainerClass(index) {
     var videoContainer = document.getElementById('videoContainer_' + index);
     if (videoContainer) {
         if (confirm("Delete Video ?")) {
-            document.getElementById("post_videos_" + (parseInt(index) - 1) + "_title").value = "";
+            var goodIndexation
+            goodIndexation = (parseInt(index) - 1)
+
+            console.log(goodIndexation)
+            console.log("index init", document.getElementById("post_videos_" + goodIndexation + "_title"))
+            document.getElementById("post_videos_" + goodIndexation + "_title").value = "";
             videoContainer.style.display = "none";
         }
-
     }
 }
 
@@ -62,7 +69,7 @@ function toggleVideoInput(index) {
         if (parentVideoContainer.tagName.toLowerCase() !== "li") {
             videoBlackBg.classList.toggle("view_black_bg")
         }
-        if(urlTransformee === "") {
+        if (urlTransformee === "") {
             videoIframeContainer.remove();
             console.log(videoContainer)
         }
@@ -124,7 +131,6 @@ function addVideoInput(index) {
                 urlTransformee = `https://www.youtube.com/embed/${match[1]}`;
             }
 
-            currentVideoIndex++
 
             if (urlTransformee !== "") {
                 var htmlCode = `
@@ -139,6 +145,7 @@ function addVideoInput(index) {
 			</div>
 		</div>
 	`;
+                currentVideoIndex++
 
                 galleryParent.innerHTML += htmlCode;
 

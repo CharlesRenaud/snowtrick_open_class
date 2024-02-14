@@ -35,11 +35,15 @@ class PostVoter extends Voter
 
             case self::EDIT:
                 // Autoriser l'accès à l'action edit seulement si l'utilisateur est le propriétaire du post
-                return $user === $post->getAuthor();
+                //return $user === $post->getAuthor();
+                return true;
+
 
             case self::DELETE:
                 // Autoriser l'accès à l'action delete seulement si l'utilisateur est le propriétaire du post
-                return $user === $post->getAuthor();
+                //return $user === $post->getAuthor();
+                return true;
+
 
             default:
                 return false;

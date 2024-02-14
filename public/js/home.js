@@ -13,9 +13,6 @@ $(document).ready(function () {
         modalBox.addClass("hidden");
     }
 
-    function goToPosts() {
-        window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
-    }
     function goToPostsTop() {
         if (section.length > 0) {
             $('html, body').animate({
@@ -26,7 +23,7 @@ $(document).ready(function () {
     }
     confirmModal.on("click", hideModal);
 
-    iconBouncing.on("click", goToPosts);
+    iconBouncing.on("click", goToPostsTop);
     iconBouncingUp.on("click", goToPostsTop);
 
     function loadMorePosts() {
@@ -40,40 +37,54 @@ $(document).ready(function () {
             success: function (response) {
 
                 iconBouncingUp.addClass("displayed");
-                var parsedResponse = JSON.parse(response);
+                var keysArray = Object.keys(response);
+                var jsonLength = keysArray.length;
+                if ((jsonLength-1 > 0)) {
 
-                if (parsedResponse.length > 0) {
-                    for (var i = 0; i < parsedResponse.length; i++) {
-                        var post = parsedResponse[i];
-                        var userId = $("script[src$='home.js']").data("user-id");
+                    for (var i = 0; i < (jsonLength-1); i++) {
+                        var post = response[i];
+                        console.log(post)
 
                         var newCard = '<div class="card">' + '<div class="card-media">';
                         if (post.mainImage) {
-                                newCard += '<img class="img" src="/uploads/images/' + post.mainImage + '">';
+                            newCard += '<a href=post/'+post.slug+'> <img class="img" src="/uploads/images/' + post.mainImage + '"></a>';
+                        } else {
+                            newCard += '<a href=post/'+post.slug+'><img class="img" src="/images/empty_img.png"></a>';
+                        }
+
+                        if(!response["roles"].includes("ROLE_VISITOR")) {
+                        // Ajout du titre et des actions
+                        newCard += '</div>' +
+                            '<div class="card-header">' +
+                            '<a id="title-post-link" href="/post/'+post.title+'">'+
+                            '<span class="card-title">' + post.title + '</span>' +
+                            '</a>'+
+                            '<span class="card-actions">' +
+                            '<a class="edit-link" href="/post/' + post.slug + '/edit"><img class="icon-crud" src="/images/edit-icon.png"/></a>' +
+                            '<form class="delete-form" method="post" action="/post/' + post.id + '" onsubmit="return confirm(\'Are you sure you want to delete this post?\');">' +
+                            '<input type="hidden" name="_token" value="'+post.csrf_token+'">' +
+                            '<button class="delete-btn">' +
+                            '<img class="icon-crud" src="/images/bin-icon.png"/>' +
+                            '</button>' +
+                            '</form>' +
+                            '</span>' +
+                            '</div>' +
+                            '</div>';
                         }else{
-                            newCard += '<img class="img" src="/images/empty_img.png">';
+                            newCard += '</div>' +
+                            '<div class="card-header">' +
+                            '<a id="title-post-link" href="/post/'+post.title+'">'+
+                            '<span class="card-title">' + post.title + '</span>' +
+                            '</a>'+
+                            '<span class="card-actions"></span>' +
+                            '</div>' +
+                            '</div>';
                         }
-
-                        newCard += `
-                                    </div>
-                                    <div class="card-header">
-                                        <span class="card-title">${post.title}</span>
-                                        <span class="card-actions">
-                                        <a href="/post/${post.id}/"><img class="icon-crud" src="/images/show-icon.png"/></a>
-                                    `;
-                        if (userId === post.author.id) {
-                            newCard += `<a class="edit-link" href="/post/${post.id}/edit"><img class="icon-crud" src="/images/edit-icon.png"/></a>`;
-                        }
-
-                        newCard += `
-                                    </span>
-                                </div>
-                                </div>`;
 
                         $("#post-container").append(newCard);
                     }
 
-                    offset += parsedResponse.length;
+                    offset += jsonLength;
                     window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
                 } else {
                     loadMoreButton.prop("disabled", true).text("No more posts");
@@ -81,12 +92,8 @@ $(document).ready(function () {
             },
             error: function (response) {
                 console.error('Error loading more posts');
-                console.log(response);
             }
         });
     }
-
-
     loadMoreButton.on("click", loadMorePosts);
-
 });

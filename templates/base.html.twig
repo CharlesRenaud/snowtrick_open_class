@@ -2,6 +2,7 @@
 <html>
 	<head>
 		<meta charset="UTF-8">
+		<meta name="viewport" content="initial-scale=1, maximum-scale=1, minimum-scale=1"/>
 		<title>
 			{% block title %}SnowTricks - Devcarl
 			{% endblock %}
@@ -11,9 +12,9 @@
 		</head>
 		<body>
 			<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+			<script src="https://cdnjs.cloudflare.com/ajax/libs/markdown-it/12.0.6/markdown-it.min.js"></script>
 
 			{% include 'nav.html.twig' %}
-			{# Inclure le contenu de nav.html.twig ici #}
 
 			{% block body %}{% endblock %}
 			<footer>
