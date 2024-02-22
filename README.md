@@ -17,7 +17,7 @@ $ composer install
 ## Étape 2 : Connexion à la base de données
 Après avoir lancé la commande `composer install`, éditez le fichier `.env` pour y ajouter la configuration de la base de données.
 
-## Étape 3 : Configuration de la base de données
+## Étape 3 : Configuration de la base de données et du Mailer
 Une fois que le fichier `.env` est configuré, exécutez la commande suivante pour initialiser la base de données :
 
 ```
