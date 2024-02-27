@@ -17,13 +17,13 @@ class MailerController extends AbstractController
         $user = $userRepository->find($userId);
 
         if (!$user) {
-            throw $this->createNotFoundException('Utilisateur non trouvé');
+            throw $this->createNotFoundException('User not find');
         }
 
         $email = (new TemplatedEmail())
             ->from('renaudcharlespro@gmail.com')
             ->to($user->getEmail())
-            ->subject('Confirmation d\'inscription')
+            ->subject('Register confirmation')
             ->htmlTemplate('emails/registration_confirmation.html.twig')
             ->context([
                 'user' => $user->getEmail(),
@@ -32,6 +32,6 @@ class MailerController extends AbstractController
 
         $mailer->send($email);
 
-        return new Response('E-mail de confirmation envoyé');
+        return new Response('Confirmation email send');
     }
 }

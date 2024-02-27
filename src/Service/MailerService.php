@@ -2,7 +2,6 @@
 
 namespace App\Service;
 
-use App\Repository\UserRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Mailer\MailerInterface;
@@ -23,7 +22,7 @@ class MailerService extends AbstractController
         $email = (new TemplatedEmail())
             ->from('renaudcharlespro@gmail.com')
             ->to($userEmail)
-            ->subject('Confirmation d\'inscription')
+            ->subject('Register confirmation')
             ->htmlTemplate('emails/registration_confirmation.html.twig')
             ->context([
                 'user' => $userEmail,
@@ -32,7 +31,7 @@ class MailerService extends AbstractController
 
         $this->mailer->send($email);
 
-        return new Response('E-mail de confirmation envoyé');
+        return new Response('Register confimration email send');
     }
 
     public function sendPasswordReset(string $userEmail, string $token): Response
@@ -41,7 +40,7 @@ class MailerService extends AbstractController
         $email = (new TemplatedEmail())
             ->from('renaudcharlespro@gmail.com')
             ->to($userEmail)
-            ->subject('Reset du mot de passe')
+            ->subject('Password reset')
             ->htmlTemplate('emails/reset_password.html.twig')
             ->context([
                 'user' => $userEmail,
@@ -50,6 +49,6 @@ class MailerService extends AbstractController
 
         $this->mailer->send($email);
 
-        return new Response('E-mail de confirmation envoyé');
+        return new Response('Password reset email send');
     }
 }
