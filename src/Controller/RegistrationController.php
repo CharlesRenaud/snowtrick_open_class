@@ -58,7 +58,7 @@ class RegistrationController extends AbstractController
 
             $mailerService->sendRegistrationConfirmationEmail($email, $token);
 
-            $this->addFlash("success", "Inscription validé, connecte toi et n'oublie pas de valider ton compte sur ton email ! ");
+            $this->addFlash("success", "Registration validated, log in and don't forget to validate your account on your email!");
             return $this->redirectToRoute('app_login', ['email' => $email], Response::HTTP_SEE_OTHER);
         }
 
@@ -80,7 +80,7 @@ class RegistrationController extends AbstractController
         $user = $userRepository->findUserByVerificationToken($token);
 
         if (!$user) {
-            throw $this->createNotFoundException('Utilisateur non trouvé');
+            throw $this->createNotFoundException('User not find');
         }
         $token = bin2hex(random_bytes(16));
 
@@ -116,9 +116,9 @@ class RegistrationController extends AbstractController
 
                 $mailerService->sendPasswordReset($user->getEmail(), $user->getVerificationToken());
 
-                $this->addFlash('success', 'Un email de réinitialisation de mot de passe a été envoyé à votre adresse.');
+                $this->addFlash('success', 'A password reset email has been sent to your address.');
             } else {
-                $this->addFlash('error', 'Aucun utilisateur trouvé avec cet email.');
+                $this->addFlash('error', 'No user found with this email.');
             }
         }
 
@@ -158,7 +158,7 @@ class RegistrationController extends AbstractController
 
             return $this->redirectToRoute('homepage');
         }
-
+        $this->addFlash('success', 'New password set');
         return $this->render('registration/change_password.html.twig', [
             'form' => $form->createView(),
         ]);
