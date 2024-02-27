@@ -18,7 +18,7 @@ $ composer install
 Après avoir lancé la commande `composer install`, éditez le fichier `.env` pour y ajouter la configuration de la base de données.
 
 ## Étape 3 : Configuration de l'environnement
-Une fois que le fichier `.env` est configuré, 
+Exemple .env, 
 ```
 APP_ENV=dev
 APP_SECRET= 32_length
