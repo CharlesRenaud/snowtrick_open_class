@@ -1,5 +1,5 @@
 # SnowTricks
-
+[![Codacy Badge](https://app.codacy.com/project/badge/Grade/f0d5a9e7b16541b1aca2f46355bc7a1e)](https://app.codacy.com/gh/CharlesRenaud/snowtrick_open_class/dashboard?utm_source=gh&utm_medium=referral&utm_content=&utm_campaign=Badge_grade)
 ## Prérequis
 Avant de pouvoir mettre en place SnowTricks, assurez-vous de disposer des outils suivants :
 
