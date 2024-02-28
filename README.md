@@ -38,3 +38,7 @@ $ symfony serve
 
 ## Étape 6 : Découverte de SnowTricks !
 Une fois que le serveur est lancé, ouvrez votre navigateur et accédez à l'adresse `http://127.0.0.1:8000` pour explorer le site.
+
+## Bonus : Version live
+
+https://snowtricks.devcarl.fr/home
