@@ -3,11 +3,11 @@
   <head></head>
   <body>
     <p>
-      Dear {{ user }},
+      Hello {{ user }},
 
-      Thank you for signing up on snowtricks. To activate your account, please click on the link below:
+      Thank you for signing up on SnowTricks. To activate your account, please click the link below:
 
-      <a href="https://snowtricks.devcarl.fr/verify/{{ token }}">Verify my account</a>
+      <a href="{{ url('user_verify', { token: token }) }}">Activate my account</a>
     </p>
   </body>
 </html>
