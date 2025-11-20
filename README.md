@@ -41,7 +41,7 @@ Une fois que le serveur est lancé, ouvrez votre navigateur et accédez à l'adr
 
 ## Bonus : Version live
 
-accès admin pour mon évaluateur - ID : admin - PASS : admin
+accès admin pour mon évaluateur - email : marine1548@okcdeals.com - PASS : admin123
 
 https://snowtricks.gacha-poke-fusion.ovh/home
 
