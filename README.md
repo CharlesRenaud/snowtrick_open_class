@@ -41,4 +41,12 @@ Une fois que le serveur est lancé, ouvrez votre navigateur et accédez à l'adr
 
 ## Bonus : Version live
 
-https://snowtricks.devcarl.fr/home
+accès admin pour mon évaluateur - email : marine1548@okcdeals.com - PASS : admin123
+
+https://snowtricks.gacha-poke-fusion.ovh/home
+
+Mise en production du projet sur un vps ubuntu via ssh.
+Installation et configuration de php + mysql + phpmyadmin.
+Création d'un sous domaine sur un de mes domaines existants.
+Configuration de nginx pour servir le phpmyadmin + le site snwotricks.
+Certbot pour ssl.
